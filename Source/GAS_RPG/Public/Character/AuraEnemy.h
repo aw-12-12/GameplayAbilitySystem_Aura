@@ -1,4 +1,7 @@
-
+/* EnemyCharacter
+ *	   - AbilitySystemComponent
+ *	   - AttributeSet
+ */
 
 #pragma once
 
