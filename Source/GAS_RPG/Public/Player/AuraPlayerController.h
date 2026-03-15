@@ -9,6 +9,7 @@
 class UInputMappingContext;//在Build.cs中添加"EnhancedInput"
 class UInputAction;
 struct FInputActionValue;
+class IEnemyInterface;
 
 /**
  * 
@@ -19,7 +20,7 @@ class GAS_RPG_API AAuraPlayerController : public APlayerController
 	GENERATED_BODY()
 public:
 	AAuraPlayerController();
-	
+	virtual void PlayerTick(float DeltaTime) override;
 protected:
 	virtual void BeginPlay() override;	
 	virtual void SetupInputComponent() override;//处理输入,区别于Character中的SetupPlayerInputComponent
@@ -31,4 +32,9 @@ private:
 	TObjectPtr<UInputAction> MoveAction;
 	
 	void Move(const FInputActionValue& InputActionValue);//结构体先声明可用struct，或放上面去
+	
+	void CursorTrace();
+	
+	IEnemyInterface* LastActor;
+	IEnemyInterface* ThisActor;
 };

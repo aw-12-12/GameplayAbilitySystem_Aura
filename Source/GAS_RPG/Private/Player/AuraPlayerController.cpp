@@ -5,6 +5,7 @@
 #include "Player/AuraPlayerController.h"
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
+#include "Interaction/EnemyInterface.h"
 
 AAuraPlayerController::AAuraPlayerController()
 {
@@ -13,6 +14,12 @@ AAuraPlayerController::AAuraPlayerController()
 	//响应服务器上的数据更新，并将这些更新发送给客户端
 	
 	
+}
+
+void AAuraPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	CursorTrace();
 }
 
 void AAuraPlayerController::BeginPlay()
@@ -60,4 +67,105 @@ void AAuraPlayerController::Move(const FInputActionValue& InputActionValue)
 		ControlledPawn->AddMovementInput(ForwardDirection,InputAxisVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection,InputAxisVector.X);
 	}
+}
+
+void AAuraPlayerController::CursorTrace()
+{
+	FHitResult CursorHit;
+	GetHitResultUnderCursor(ECC_Visibility,false,CursorHit);
+	if (!CursorHit.bBlockingHit) return;//检查是否有阻塞命中
+	//检查是否实现敌人接口：进行类型转换
+	//使用两个指针指向接口：一个是当前帧悬停的Actor,另一个是上一帧悬停的Actor；判断是否相同，是否为空
+	LastActor = ThisActor;
+	ThisActor = Cast<IEnemyInterface>(CursorHit.GetActor()); 
+		
+	/*
+	 *Line trace from cursor.There are several scenarios:
+	 * A. LastActor is null && ThisActor is null
+	 *	   - Do nothing
+	 * B. LastActor is null && ThisActor is valid
+	 *     - Highlight ThisActor
+	 * C. LastActor is valid && ThisActor is null
+	 *     - UnHighlight LastActor
+	 * D. Both actors are valid,but LastActor != ThisActor
+	 *	   - UnHighlight LastActor,and Highlight ThisActor
+	 * E. Both actors are valid,and are the same actor
+	 *	   - Do nothing
+	 */
+	  if (LastActor == nullptr)
+	  {
+		 if (ThisActor != nullptr)
+		 {
+			 // Case B
+		 	ThisActor->HighlightActor();
+		 }
+		 else
+		 {
+			 // Case A
+		 }
+	  }
+	  else // LastActor is valid
+	  {
+	  	if (ThisActor == nullptr)
+		  {
+	  		// Case C
+			  LastActor->UnHighlightActor();
+		  }
+	    else // Both actors are valid
+	    {
+	    	if (LastActor != ThisActor)
+	    	{
+	    		// Case D
+	    		LastActor->UnHighlightActor();
+	    		ThisActor->HighlightActor();
+	    	}
+		    else
+		    {
+			    // Case E
+		    }
+	    }
+	  }
+
+	/*
+		// Only do work if the focus has actually changed
+		if (LastActor != ThisActor) 
+		{
+			// 1. Clean up the old actor (Handles Cases C and D)
+			if (LastActor != nullptr)
+			{
+				LastActor->UnHighlightActor();
+			}
+
+			// 2. Setup the new actor (Handles Cases B and D)
+			if (ThisActor != nullptr)
+			{
+				ThisActor->HighlightActor();
+			}
+		}
+		// Note: Cases A and E are naturally handled because (LastActor == ThisActor), 
+		// so the block is skipped entirely.
+		
+		
+		
+		// 1. 如果指针没有变化，直接返回（处理了 Case A 和 Case E）
+		if (ThisActor == LastActor) 
+		{
+			return;
+		}
+
+		// 2. 清除旧的选中状态（处理了 Case C 和 Case D）
+		if (LastActor != nullptr)
+		{
+			LastActor->UnHighlightActor();
+		}
+
+		// 3. 应用新的选中状态（处理了 Case B 和 Case D）
+		if (ThisActor != nullptr)
+		{
+			ThisActor->HighlightActor();
+		}
+			
+		
+	*/
+	
 }
