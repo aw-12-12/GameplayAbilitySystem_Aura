@@ -1,5 +1,6 @@
 
-
+//高亮显示使AuraPlayerController依赖于AuraEnemy，因此为了提高适应性，来创建一个接口类(IEnemyInterface)，当鼠标悬停在一个对象上时，可以检查它是否实现这个接口,接口类调用接口函数，而AuraPlayerController不要知道当悬停是要做什么
+//只要知道如果对象实现接口，应该调用接口函数，而actor可以重写并以任何方式实现这些功能【ITargetInterface】【IHighlightInterface】
 
 #include "Player/AuraPlayerController.h"
 #include "EnhancedInputSubsystems.h"
@@ -27,6 +28,7 @@ void AAuraPlayerController::BeginPlay()
 	
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
+	CurrentMouseCursor = DefaultMouseCursor;
 	
 	FInputModeGameAndUI InputModeData;
 	InputModeData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
