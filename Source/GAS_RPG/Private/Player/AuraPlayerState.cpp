@@ -11,7 +11,7 @@ AAuraPlayerState::AAuraPlayerState()
 	
 	AbilitySystemComponent = CreateDefaultSubobject<UAuraAbilitySystemComponent>("AbilitySystemComponent");
 	AbilitySystemComponent->SetIsReplicated(true);
-	
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	AttributeSet = CreateDefaultSubobject<UAuraAttributeSet>("AttributeSet");
 	
 	NetUpdateFrequency = 100.f;//设置网络更新频率（服务器尝试更新客户端的频率）【设置上限】，当玩家状态在服务器上变化时，服务器会向所有客户端发送更新，同步
