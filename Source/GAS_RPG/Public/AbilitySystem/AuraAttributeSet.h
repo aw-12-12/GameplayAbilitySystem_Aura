@@ -3,9 +3,15 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "AbilitySystemComponent.h"
 #include "AttributeSet.h"
 #include "AuraAttributeSet.generated.h"
-
+//一个全自动的代码生成器,但是通常不使用这些函数改变属性，一般用GE，因为GE可预测
+#define ATTRIBUTE_ACCESSORS(ClassName, PropertyName) \
+	GAMEPLAYATTRIBUTE_PROPERTY_GETTER(ClassName, PropertyName) \
+	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
+	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
+	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName)
 /**
  * 
  */
@@ -21,15 +27,20 @@ public:
 	
 	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_Health,Category = "Vital Attributes")
 	FGameplayAttributeData Health;
+	//Attribute Accessors	
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Health);
 	
 	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_MaxHealth,Category = "Vital Attributes")
 	FGameplayAttributeData MaxHealth;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, MaxHealth);
 	
 	UPROPERTY(BlueprintReadOnly,Replicatedusing = OnRep_Mana,Category = "Vital Attributes")
 	FGameplayAttributeData Mana;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, Mana);
 	
 	UPROPERTY(BlueprintReadOnly,Replicatedusing = OnRep_MaxMana,Category = "Vital Attributes")
 	FGameplayAttributeData MaxMana;
+	ATTRIBUTE_ACCESSORS(UAuraAttributeSet, MaxMana);
 	
 	UFUNCTION()//成为一个repnotify，必须是UFUNCTION【回调函数都必须是 UFUNCTION】
 	void OnRep_Health(const FGameplayAttributeData& OldHealth) const;//可不带参数，也可以带一个必须是复制变量类型的参数，接受旧值有助于比较新旧值
