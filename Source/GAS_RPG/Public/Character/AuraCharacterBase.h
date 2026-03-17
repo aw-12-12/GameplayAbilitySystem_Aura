@@ -34,3 +34,19 @@ protected:
 	TObjectPtr<UAttributeSet> AttributeSet;
 	
 };
+
+//Init Ability Actor Info
+/*ASC有AbilityActorInfo的概念,有两个变量Owner Actor(实际拥有ASC),Avatar Actor(ASC在游戏世界的化身,可见)
+ *对于Enemy,Owner Actor==Avatar Actor
+ *对于Player-controlled character,Owner Actor=PlayerState,Avatar Actor=PlayerCharacter 
+ */
+/*调用UAbilitySystemComponent::InitAbilityActorInfo(AActor* InOwner,AActor* InAvatarActor)时机
+ * after possession(the controller has been set for the pawn)
+ * 1) Player-Controlled Character
+ *		if ASC lives on the pawn,在Pawn的PossessedBy function(On the server)中调用,(On the Client)用AcknowledgePossession(Possession has occurred,the pawn has a valid controller),能确保ASC用AvatarActor和OwnerActor初始化,Owner==Avatar==Pawn
+ *		if ASC lives on the PlayerState, (On the sever)PossessedBy,(On the Client)OnRep_PlayerState(这里要保证PlayerState is valid)[RepNotify,由于something being replicated,In this case,the playerstate will have been set on the server,playerstate is a replicated entity ],Owner = PlayerState,Avatar = PawnOrCharacter
+ * 2) AI-Controlled Character
+ *		ASC lives on the Pawn,(On the Sever and Client)BeginPlay  
+ */
+
+
