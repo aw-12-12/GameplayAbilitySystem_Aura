@@ -5,7 +5,9 @@
 
 #include "AbilitySystemComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Player/AuraPlayerController.h"
 #include "Player/AuraPlayerState.h"
+#include "UI/HUD/AuraHUD.h"
 
 AAuraCharacter::AAuraCharacter()
 {
@@ -42,5 +44,15 @@ void AAuraCharacter::InitAbilityActorInfo()
 	AbilitySystemComponent = AuraPlayerState->GetAbilitySystemComponent();
 	AttributeSet = AuraPlayerState->GetAttributeSet();
 	AbilitySystemComponent->InitAbilityActorInfo(AuraPlayerState,this);
+	
+	AAuraPlayerController* AuraPlayerController  = Cast<AAuraPlayerController>(GetController());
+	if(AuraPlayerController)//Server has all the player's player controllers,but each player has only its own player controller
+	{
+		AAuraHUD* AuraHUD = Cast<AAuraHUD>(AuraPlayerController->GetHUD());
+		if(AuraHUD)
+		{
+			AuraHUD->InitOverlay(AuraPlayerController,AuraPlayerState,AbilitySystemComponent,AttributeSet);
+		}
+	}
 }
 //MixedReplicationMode:当你的 OwnerActor 是 PlayerState 时，虚幻引擎的底层网络架构会自动将这个 PlayerState 的 Owner 设置为对应的 PlayerController

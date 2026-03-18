@@ -29,10 +29,11 @@ void AAuraPlayerController::BeginPlay()
 	
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(GetLocalPlayer());
 	//子系统是单例模式，在程序运行期间只存在一个
-	check(Subsystem);
+	if(Subsystem)//只有在本地控制的机器并且又有效的localplayer时，Subsystem才会有效
 	//添加AuraContext
-	Subsystem->AddMappingContext(AuraContext,0);
-	
+	{
+		Subsystem->AddMappingContext(AuraContext,0);
+	}
 	bShowMouseCursor = true;
 	DefaultMouseCursor = EMouseCursor::Crosshairs;
 	CurrentMouseCursor = DefaultMouseCursor;
