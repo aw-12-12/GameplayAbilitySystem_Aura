@@ -6,7 +6,8 @@
 #include "UI/WidgetController/AuraWidgetController.h"
 #include "OverlayWidgetController.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature,float,NewHealth);//声明委托类型,// 声明一个带有一个 float 参数的动态多播委托 (常用于暴露给蓝图)
+struct FOnAttributeChangeData;
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);//声明委托类型,// 声明一个带有一个 float 参数的动态多播委托 (常用于暴露给蓝图)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature,float,NewMaxHealth);
 
 /**
@@ -26,4 +27,9 @@ public:
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
 	FOnMaxHealthChangedSignature OnMaxHealthChanged;
 	
+	virtual void BindCallbacksToDependencies() override;
+	
+protected:
+	void HealthChanged(const FOnAttributeChangeData& Data) const;
+	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
 };
