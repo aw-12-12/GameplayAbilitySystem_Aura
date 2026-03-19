@@ -40,10 +40,11 @@ class GAS_RPG_API UAuraWidgetController : public UObject
 public:
 	UFUNCTION(BlueprintCallable)
 	void SetWidgetControllerParams(const FWidgetControllerParams& WCParams); 
+	virtual void BroadcastInitialValues();
 	
 protected:
 	
-	//Get the data,and broadcast
+	//Get the data,and broadcast(Use Delegates:实现单向依赖的好方法)
 	UPROPERTY(BlueprintReadOnly,Category = "WidgetController")
 	TObjectPtr<APlayerController> PlayerController;
 	UPROPERTY(BlueprintReadOnly,Category = "WidgetController")
