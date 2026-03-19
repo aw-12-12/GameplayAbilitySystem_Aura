@@ -9,6 +9,9 @@
 struct FOnAttributeChangeData;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHealthChangedSignature, float, NewHealth);//声明委托类型,// 声明一个带有一个 float 参数的动态多播委托 (常用于暴露给蓝图)
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnMaxHealthChangedSignature,float,NewMaxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnManaChangedSignature,float,NewMana);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FONMaxManaChangedSignature,float,NewMaxMana);
+
 
 /**
  * 
@@ -27,9 +30,18 @@ public:
 	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
 	FOnMaxHealthChangedSignature OnMaxHealthChanged;
 	
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
+	FOnManaChangedSignature OnManaChanged;
+	
+	UPROPERTY(BlueprintAssignable,Category = "GAS|Attributes")
+	FOnMaxHealthChangedSignature OnMaxManaChanged;
+	
+	
 	virtual void BindCallbacksToDependencies() override;
 	
 protected:
 	void HealthChanged(const FOnAttributeChangeData& Data) const;
 	void MaxHealthChanged(const FOnAttributeChangeData& Data) const;
+	void ManaChanged(const FOnAttributeChangeData& Data) const;
+	void MaxManaChanged(const FOnAttributeChangeData& Data) const;
 };
