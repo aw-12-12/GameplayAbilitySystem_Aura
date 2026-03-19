@@ -6,7 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "AuraEffectActor.generated.h"
 
-class USphereComponent;
+class UGameplayEffect;
 
 UCLASS()
 class GAS_RPG_API AAuraEffectActor : public AActor
@@ -17,21 +17,19 @@ public:
 
 	AAuraEffectActor();
 
-	UFUNCTION()
-	virtual void OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex,bool bFromSweep,const FHitResult& SweepResult); 
-	
-	UFUNCTION()
-	virtual void EndOverlap(UPrimitiveComponent* OverlappedComponent,AActor* Other,UPrimitiveComponent* OtherComp,int32 OtherBodyIndex);
 	
 protected:
 	
 	virtual void BeginPlay() override;
+	
+	UPROPERTY(EditAnywhere,Category = "Applied Effects")
+	TSubclassOf<UGameplayEffect> InstantGameplayEffectClass;
+		
+	UFUNCTION(BlueprintCallable)
+	void ApplyEffectToTarget(AActor* Target,TSubclassOf<UGameplayEffect> GameplayEffectClass);
 
 private:
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<USphereComponent> Sphere;
 	
-	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<UStaticMeshComponent> Mesh ;
 	
 };
+//绑定动态多播委托，回调函数OnOverlap的参数由OnComponentBeginOverlap的类型该用的特定委托的参数数量以及类型决定，不同类型的有不同类型的委托方法进入其中查看回调函数必备的参数列表，再根据参数创建对应参数的回调函数
