@@ -35,3 +35,12 @@ void AAuraEffectActor::ApplyEffectToTarget(AActor* TargetActor, TSubclassOf<UGam
 	const FGameplayEffectSpecHandle EffectSpecHandle = TargetASC->MakeOutgoingSpec(GameplayEffectClass,1.f,EffectContextHandle);
 	TargetASC->ApplyGameplayEffectSpecToSelf(*EffectSpecHandle.Data.Get());//句柄：轻量级包装器.Get()返回原始指针
 }
+
+void AAuraEffectActor::OnOverlap(AActor* Target)
+{
+	
+}
+
+void AAuraEffectActor::OnEndOverlap(AActor* Target)
+{
+}
