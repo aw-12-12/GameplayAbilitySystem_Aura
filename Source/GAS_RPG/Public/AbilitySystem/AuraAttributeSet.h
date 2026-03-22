@@ -12,9 +12,49 @@
 	GAMEPLAYATTRIBUTE_VALUE_GETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_SETTER(PropertyName) \
 	GAMEPLAYATTRIBUTE_VALUE_INITTER(PropertyName) 
+
+USTRUCT()
+struct FEffectProperties
+{
+	GENERATED_BODY()
+	FEffectProperties(){}
+	
+	FGameplayEffectContextHandle EffectContextHandle;
+	
+	UPROPERTY()
+	UAbilitySystemComponent* SourceASC = nullptr;
+	
+	UPROPERTY()
+	AActor* SourceAvatarActor = nullptr;
+	
+	UPROPERTY()
+	AController* SourceController = nullptr;
+	
+	UPROPERTY()
+	ACharacter* SourceCharacter = nullptr;
+	
+	UPROPERTY()
+	UAbilitySystemComponent* TargetASC = nullptr;
+	
+	UPROPERTY()
+	AActor* TargetAvatarActor = nullptr;
+	
+	UPROPERTY()
+	AController* TargetController = nullptr;
+	
+	UPROPERTY()
+	ACharacter* TargetCharacter = nullptr;
+	
+	
+	
+};
+
+
+
 /**
  * 
  */
+
 UCLASS()
 class GAS_RPG_API UAuraAttributeSet : public UAttributeSet
 {
@@ -24,6 +64,10 @@ public:
 	
 	//同步注册变量必备,必须重写才能同步任何变量
 	virtual void GetLifetimeReplicatedProps(TArray<class FLifetimeProperty>& OutLifetimeProps) const override;
+	
+	virtual void PreAttributeChange(const FGameplayAttribute& Attribute,float& NewValue) override;
+	
+	virtual void PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data) override;
 	
 	UPROPERTY(BlueprintReadOnly,ReplicatedUsing = OnRep_Health,Category = "Vital Attributes")
 	FGameplayAttributeData Health;
@@ -54,6 +98,11 @@ public:
 	
 	UFUNCTION()
 	void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) const;
+	
+	
+private:
+	
+	void SetEffectProperties(const FGameplayEffectModCallbackData& Data,FEffectProperties& Props) const;
 	
 };
 //当服务器上的一个变量发生了改变，并同步到客户端时，客户端会自动触发一个特定的回调函数。这个“变量同步 + 触发函数”的组合就叫 RepNotify

@@ -3,6 +3,9 @@
 
 #include "AbilitySystem/AuraAttributeSet.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+#include "GameplayEffectExtension.h"
+#include "GameFramework/Character.h"
 #include "Net/UnrealNetwork.h"
 
 UAuraAttributeSet::UAuraAttributeSet()
@@ -27,6 +30,77 @@ void UAuraAttributeSet::GetLifetimeReplicatedProps(TArray<class FLifetimePropert
 	
 	
 }
+
+
+//主要做数值限制，不适合写因为属性改变触发的逻辑
+void UAuraAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)//主要且唯一影响的是属性的 基础值 (BaseValue)，在变化真正发生前调用，任何改变属性的行为都会触发这个
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+		
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue,0.f,GetMaxHealth());
+	}
+	if (Attribute == GetManaAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue,0.f,GetMaxMana());
+	}
+}
+
+void UAuraAttributeSet::SetEffectProperties(const FGameplayEffectModCallbackData& Data, FEffectProperties& Props) const
+{
+	//Source = causer of the effect,Target = target of the effect (owner of this AS) 
+	Props.EffectContextHandle = Data.EffectSpec.GetContext();
+	Props.SourceASC = Props.EffectContextHandle.GetOriginalInstigatorAbilitySystemComponent();
+	
+	if (IsValid(Props.SourceASC) && Props.SourceASC->AbilityActorInfo.IsValid() && Props.SourceASC->AbilityActorInfo->AvatarActor.IsValid())
+	{	
+		Props.SourceAvatarActor =  Props.SourceASC->AbilityActorInfo->AvatarActor.Get();
+		Props.SourceController = Props.SourceASC->AbilityActorInfo->PlayerController.Get();
+		if (Props.SourceController == nullptr && Props.SourceAvatarActor != nullptr)
+		{
+			if (const APawn* Pawn = Cast<APawn>(Props.SourceAvatarActor))
+			{
+				Props.SourceController = Pawn->GetController();
+			}
+		}
+		if (Props.SourceController)
+		{
+			ACharacter* SourceCharacter = Cast<ACharacter>(Props.SourceController->GetPawn());
+		}
+	}
+	
+	if (Data.Target.AbilityActorInfo.IsValid() && Data.Target.AbilityActorInfo->AvatarActor.IsValid())
+	{
+		Props.TargetAvatarActor = Data.Target.AbilityActorInfo->AvatarActor.Get();
+		Props.TargetController =Data.Target.AbilityActorInfo->PlayerController.Get();
+		Props.TargetCharacter = Cast<ACharacter>(Props.TargetAvatarActor);
+		Props.TargetASC = UAbilitySystemBlueprintLibrary::GetAbilitySystemComponent(Props.TargetAvatarActor);
+	}
+	
+	
+}
+
+
+
+void UAuraAttributeSet::PostGameplayEffectExecute(const struct FGameplayEffectModCallbackData& Data)//在GameplayEffect修改属性之后执行
+{
+	Super::PostGameplayEffectExecute(Data);
+	/*
+		if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+		{
+			UE_LOG(LogTemp,Warning,TEXT("Health is %f"),GetHealth());
+			UE_LOG(LogTemp,Warning,TEXT("Magnitude is %f"),Data.EvaluatedData.Magnitude);
+		}
+	*/
+	
+	FEffectProperties Props;
+	SetEffectProperties(Data,Props);//有些属性可能没有，使用前要记得检查有效性
+		
+	
+	
+}
+
 //REPNOTIFY_Always 的意思是：即使服务器发来的新值和客户端本地的值一样，也强制触发一次 OnRep。这在处理预测失败（Prediction Miss）回滚时非常有用
 
 
@@ -52,3 +126,4 @@ void UAuraAttributeSet::OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana) 
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UAuraAttributeSet,MaxMana,OldMaxMana);
 }
+
